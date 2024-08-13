@@ -89,7 +89,8 @@ class post_services(APIView):
         
         serializers =ServicesSerializer(data=request.data)
         if serializers.is_valid():
-            serializers.save()
+            service = serializers.save()
+            send_welcome_email(service )
             return Response(serializers.data, status=status.HTTP_201_CREATED)
         return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -97,4 +98,12 @@ class post_services(APIView):
 class Modules(generics.ListAPIView):
     queryset = Modules.objects.all()
     serializer_class = ModulesSerializer
+
+
+def send_welcome_email(user):
+    subject = "Welcome to Grow"
+    message = f"Dear {user.first_name},\n\nWelcome to Grow. Your Application has beeen successfully received thank you for applying with GROW we promise you all the best."
+    from_email = settings.EMAIL_HOST_USER
+    to_email = [user.email]
+    send_mail(subject, message, from_email, to_email, fail_silently=False)
     
